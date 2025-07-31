@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>BRAND CARD</title>
+        <link rel="stylesheet" href="css/reset.css" type="text/css">
+        <link rel="stylesheet" href="css/main.css" type="text/css">
+        <link rel="stylesheet" href="css/ctl-multiplayer-icons.css" type="text/css">
+        <link rel="stylesheet" href="css/animation.css" type="text/css">           
+        <link rel="stylesheet" href="css/ctl-multiplayer.css" type="text/css">
+        <link rel="stylesheet" href="https://api.codethislab.com/gd/moregames.css" type="text/css">
+        <link rel="stylesheet" href="css/orientation_utils.css" type="text/css">
+        <link rel="stylesheet" href="css/ios_fullscreen.css" type="text/css">
+        <link rel='shortcut icon' type='image/x-icon' href='icon.ico' />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui" />
+        <meta name="msapplication-tap-highlight" content="no"/>
+
+        <script type="text/javascript" src="js/lib/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="js/lib/createjs.min.js"></script>
+        <script type="text/javascript" src="js/lib/howler.min.js"></script>
+        
+        <script type="text/javascript" src="js/CLang.js"></script>
+        <script type="text/javascript" src="js/main.js"></script>
+        
+        <style>
+            #video-splash {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: #000;
+                z-index: 9999;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+            }
+            
+            #video-splash video {
+                max-width: 100%;
+                max-height: 100%;
+            }
+            
+            #skip-btn {
+                position: absolute;
+                bottom: 20px;
+                right: 20px;
+                padding: 10px 20px;
+                background-color: rgba(255,255,255,0.3);
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                z-index: 10000;
+                font-weight: bold;
+                transition: all 0.3s;
+            }
+            
+            #skip-btn:hover {
+                background-color: rgba(255,255,255,0.5);
+            }
+            
+            .video-stage {
+                display: none;
+                width: 100%;
+                height: 100%;
+                justify-content: center;
+                align-items: center;
+                position: relative;
+            }
+            
+            .video-stage.active {
+                display: flex;
+            }
+            
+            #start-btn {
+                position: absolute;
+                bottom: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 15px 40px;
+                background-color: rgba(255,215,0,0.8);
+                color: #000;
+                border: 2px solid #fff;
+                border-radius: 30px;
+                cursor: pointer;
+                z-index: 10000;
+                font-size: 24px;
+                font-weight: bold;
+                text-transform: uppercase;
+                box-shadow: 0 0 20px rgba(255,215,0,0.6);
+                animation: pulse 1.5s infinite;
+                transition: all 0.3s;
+            }
+            
+            #start-btn:hover {
+                background-color: rgba(255,215,0,1);
+                transform: translateX(-50%) scale(1.05);
+            }
+            
+            @keyframes pulse {
+                0% {
+                    box-shadow: 0 0 0 0 rgba(255,215,0,0.7);
+                }
+                70% {
+                    box-shadow: 0 0 0 15px rgba(255,215,0,0);
+                }
+                100% {
+                    box-shadow: 0 0 0 0 rgba(255,215,0,0);
+                }
+            }
+            
+            #loading-text {
+                position: absolute;
+                bottom: 30px;
+                width: 100%;
+                text-align: center;
+                color: white;
+                font-size: 18px;
+                font-family: Arial, sans-serif;
+                z-index: 10000;
+            }
+            
+            .blinking-text {
+                animation: blink 1.5s infinite;
+                font-weight: bold;
+                text-shadow: 0 0 10px rgba(255,255,255,0.7);
+            }
+            
+            @keyframes blink {
+                0% { opacity: 0.5; }
+                50% { opacity: 1; }
+                100% { opacity: 0.5; }
+            }
+            
+            /* New styles for scan intro */
+            #scan-intro-stage {
+                background-color: #000;
+            }
+            
+            #scan-intro-video {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+            
+            #scan-progress {
+                position: absolute;
+                bottom: 100px;
+                width: 80%;
+                left: 10%;
+                height: 10px;
+                background-color: rgba(255,255,255,0.2);
+                border-radius: 5px;
+                overflow: hidden;
+            }
+            
+            #scan-progress-bar {
+                height: 100%;
+                width: 0%;
+                background: linear-gradient(90deg, #00ff00, #00cc00);
+                transition: width 0.3s;
+            }
+            
+            #scan-percentage {
+                position: absolute;
+                bottom: 120px;
+                width: 100%;
+                text-align: center;
+                color: #00ff00;
+                font-size: 24px;
+                font-family: 'Courier New', monospace;
+            }
+            
+            /* Mobile-specific styles */
+            @media only screen and (max-width: 768px) {
+                #start-btn {
+                    padding: 12px 30px;
+                    font-size: 18px;
+                    bottom: 60px;
+                }
+                
+                #loading-text {
+                    font-size: 16px;
+                    bottom: 20px;
+                }
+                
+                #scan-progress {
+                    bottom: 70px;
+                    width: 90%;
+                    left: 5%;
+                }
+                
+                #scan-percentage {
+                    bottom: 90px;
+                    font-size: 20px;
+                }
+                
+                #skip-btn {
+                    padding: 8px 16px;
+                    font-size: 14px;
+                    bottom: 15px;
+                    right: 15px;
+                }
+                
+                /* Adjust canvas for mobile */
+                canvas#canvas {
+                    width: 100% !important;
+                    height: auto !important;
+                    max-height: 100vh;
+                }
+                
+                /* Hide orientation message when in correct orientation */
+                .orientation-msg-container[data-orientation="landscape"] {
+                    display: none;
+                }
+                
+                /* Show orientation message when in portrait */
+                @media (orientation: portrait) {
+                    .orientation-msg-container[data-orientation="landscape"] {
+                        display: flex;
+                    }
+                    
+                    #video-splash {
+                        display: none;
+                    }
+                }
+            }
+            
+            /* Tablet-specific styles */
+            @media only screen and (min-width: 769px) and (max-width: 1024px) {
+                #start-btn {
+                    padding: 14px 35px;
+                    font-size: 22px;
+                }
+                
+                #loading-text {
+                    font-size: 17px;
+                }
+            }
+            
+            /* Prevent text selection */
+            * {
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+            
+            /* Touch feedback for buttons */
+            button {
+                -webkit-tap-highlight-color: transparent;
+            }
+            
+            button:active {
+                transform: scale(0.95);
+            }
+        </style>
+    </head>
+    <body ondragstart="return false;" ondrop="return false;">
+        <!-- Video Splash Screen -->
+        <div id="video-splash">
+            <!-- Scan Intro Video -->
+            <div id="scan-intro-stage" class="video-stage active">
+                <video id="scan-intro-video" playsinline>
+                    <source src="assets/pin.mp4" type="video/mp4">
+                </video>
+                <div id="scan-progress">
+                    <div id="scan-progress-bar"></div>
+                </div>
+                <div id="scan-percentage">0%</div>
+                <div id="loading-text" class="blinking-text">Initializing System...</div>
+                <button id="skip-btn" style="display: none;">SKIP</button>
+            </div>
+            
+            <!-- Start Button Video -->
+            <div id="start-stage" class="video-stage">
+                <video id="start-video" autoplay loop playsinline>
+                    <source src="assets/start_button.mp4" type="video/mp4">
+                </video>
+                <button id="start-btn">START GAME</button>
+                <div id="loading-text">Start Game Assets...</div>
+            </div>
+            
+            <!-- Scan Video -->
+            <div id="scan-stage" class="video-stage">
+                <video id="scan-video" playsinline>
+                    <source src="assets/scan_animation.mp4" type="video/mp4">
+                </video>
+                <div id="loading-text">Preparing Game Experience...</div>
+            </div>
+        </div>
+        
+        <div style="position: fixed; background-color: transparent; top: 0px; left: 0px; width: 100%; height: 100%"></div>
+        
+        <canvas id="canvas" class='ani_hack' width="1920" height="1080"></canvas>
+        
+        <div id="div_display_id"></div>
+        
+        <div data-orientation="landscape" class="orientation-msg-container"><p class="orientation-msg-text">Please rotate your device</p></div>
+        <div id="block_game" style="position: fixed; background-color: transparent; top: 0px; left: 0px; width: 100%; height: 100%; display:none"></div>
+
+        <script>
+            // Detect mobile device
+            function isMobile() {
+                return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            }
+            
+            // Video splash screen handling
+            $(document).ready(function(){
+                var scanIntroVideo = document.getElementById('scan-intro-video');
+                var startVideo = document.getElementById('start-video');
+                var scanVideo = document.getElementById('scan-video');
+                var splashScreen = document.getElementById('video-splash');
+                var startBtn = document.getElementById('start-btn');
+                var skipBtn = document.getElementById('skip-btn');
+                var scanIntroStage = document.getElementById('scan-intro-stage');
+                var startStage = document.getElementById('start-stage');
+                var scanStage = document.getElementById('scan-stage');
+                var loadingText = document.getElementById('loading-text');
+                var scanProgressBar = document.getElementById('scan-progress-bar');
+                var scanPercentage = document.getElementById('scan-percentage');
+                var gameStarted = false;
+                var assetsLoaded = false;
+                
+                // Adjust for mobile devices
+                if (isMobile()) {
+                    // Make buttons more touch-friendly
+                    startBtn.style.padding = '12px 30px';
+                    startBtn.style.fontSize = '18px';
+                    
+                    // Show skip button by default on mobile
+                    skipBtn.style.display = 'block';
+                    
+                    // Adjust loading text position
+                    loadingText.style.bottom = '20px';
+                }
+                
+                // Function to update scan progress
+                function updateScanProgress(percent) {
+                    scanProgressBar.style.width = percent + '%';
+                    scanPercentage.textContent = percent + '%';
+                    
+                    if (percent >= 100) {
+                        setTimeout(function() {
+                            scanIntroStage.classList.remove('active');
+                            startStage.classList.add('active');
+                            loadingText.textContent = "System Ready!";
+                            
+                            // Play start video
+                            startVideo.muted = true;
+                            startVideo.play().catch(function(e) {
+                                console.log("Start video autoplay prevented");
+                                startBtn.style.display = 'block';
+                            });
+                        }, 500);
+                    }
+                }
+                
+                // Simulate scan progress
+                function simulateScan() {
+                    var progress = 0;
+                    var scanInterval = setInterval(function() {
+                        progress += Math.random() * 10;
+                        if (progress >= 100) {
+                            progress = 100;
+                            clearInterval(scanInterval);
+                        }
+                        updateScanProgress(Math.floor(progress));
+                    }, 300);
+                }
+                
+                // Preload game assets in the background
+                function preloadAssets() {
+                    // Simulate asset loading (replace with actual asset loading code)
+                    setTimeout(function() {
+                        assetsLoaded = true;
+                        if (startStage.classList.contains('active')) {
+                            loadingText.textContent = "Ready to Start!";
+                        }
+                    }, 3000);
+                }
+                
+                // Start preloading assets immediately
+                preloadAssets();
+                
+                // Function to start the game
+                function startGame() {
+                    if (gameStarted) return;
+                    gameStarted = true;
+                    
+                    // Show loading text while preparing game
+                    loadingText.textContent = "Launching Game...";
+                    
+                    // Hide splash screen after a short delay to show the loading message
+                    setTimeout(function() {
+                        splashScreen.style.display = 'none';
+                        
+                        try {
+                            var oMain = new CMain({});
+                            
+                            $(oMain).on("select_players", function(evt,iNumPlayers){
+                                //...ADD YOUR CODE HERE EVENTUALLY
+                            });
+                
+                            $(oMain).on("start_session", function(evt) {
+                                 
+                            }); 
+                             
+                            $(oMain).on("end_session", function(evt) {
+                                   
+                            });
+
+                            $(oMain).on("save_score", function(evt,iScore, szMode) {
+                                  
+                            });
+
+                            $(oMain).on("show_interlevel_ad", function(evt) {
+                                    if (typeof gdsdk !== 'undefined' && gdsdk.showAd !== 'undefined') {
+                                        gdsdk.showAd();
+                                    }
+                            });
+                            
+                            $(oMain).on("share_event", function(evt, iScore) {
+                                  
+                            });
+                             
+                            if(isIOS()){ 
+                                setTimeout(function(){sizeHandler();},200); 
+                            }else{ sizeHandler(); }
+                        } catch(e) {
+                            console.error("Game initialization error:", e);
+                            // Fallback: reload the page if initialization fails
+                            location.reload();
+                        }
+                    }, 1000);
+                }
+                
+                // Start button click handler
+                startBtn.addEventListener('click', function() {
+                    if (!assetsLoaded) {
+                        loadingText.textContent = "Please wait, assets still loading...";
+                        return;
+                    }
+                    
+                    startVideo.pause();
+                    showScanStage();
+                });
+                
+                // Skip button click handler
+                skipBtn.addEventListener('click', function() {
+                    if (scanIntroStage.classList.contains('active')) {
+                        scanIntroVideo.pause();
+                        scanIntroStage.classList.remove('active');
+                        startStage.classList.add('active');
+                        updateScanProgress(100);
+                    } else if (scanStage.classList.contains('active')) {
+                        scanVideo.pause();
+                        startGame();
+                    }
+                });
+                
+                // Show scan stage
+                function showScanStage() {
+                    startStage.classList.remove('active');
+                    scanStage.classList.add('active');
+                    
+                    // Update loading text
+                    loadingText.textContent = "Initializing Game Environment...";
+                    skipBtn.style.display = 'block';
+                    
+                    // Reset scan video and play
+                    scanVideo.currentTime = 0;
+                    var playPromise = scanVideo.play();
+                    
+                    if (playPromise !== undefined) {
+                        playPromise.then(function() {
+                            // Video is playing
+                        }).catch(function(error) {
+                            // If autoplay fails, show skip button and start on click
+                            console.log("Autoplay prevented, showing skip button");
+                            skipBtn.style.display = 'block';
+                        });
+                    }
+                    
+                    // When scan video ends, start the game
+                    scanVideo.addEventListener('ended', function() {
+                        startGame();
+                    }, {once: true});
+                    
+                    // Also start game if video takes too long (fallback)
+                    var timeout = setTimeout(function() {
+                        if (!gameStarted) {
+                            console.log("Video timeout, starting game");
+                            startGame();
+                        }
+                    }, 31000);
+                    
+                    // Clear timeout if video ends normally
+                    scanVideo.addEventListener('ended', function() {
+                        clearTimeout(timeout);
+                    }, {once: true});
+                }
+                
+                // Start with scan intro video
+                scanIntroVideo.muted = true;
+                var playPromise = scanIntroVideo.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(function() {
+                        // Video is playing, start scan simulation
+                        simulateScan();
+                    }).catch(function(error) {
+                        // If autoplay fails, skip to start stage
+                        console.log("Scan intro video autoplay prevented");
+                        scanIntroStage.classList.remove('active');
+                        startStage.classList.add('active');
+                        updateScanProgress(100);
+                    });
+                }
+                
+                // Fallback in case video doesn't play
+                setTimeout(function() {
+                    if (scanIntroVideo.paused && scanIntroStage.classList.contains('active')) {
+                        console.log("Scan intro video not playing, skipping");
+                        scanIntroStage.classList.remove('active');
+                        startStage.classList.add('active');
+                        updateScanProgress(100);
+                    }
+                }, 1000);
+                
+                // Handle orientation changes
+                function handleOrientation() {
+                    if (window.innerHeight > window.innerWidth) {
+                        // Portrait mode
+                        if (isMobile()) {
+                            document.querySelector('.orientation-msg-container[data-orientation="landscape"]').style.display = 'flex';
+                            splashScreen.style.display = 'none';
+                        }
+                    } else {
+                        // Landscape mode
+                        document.querySelector('.orientation-msg-container[data-orientation="landscape"]').style.display = 'none';
+                        splashScreen.style.display = 'flex';
+                    }
+                }
+                
+                // Initial orientation check
+                handleOrientation();
+                
+                // Add orientation change listener
+                window.addEventListener('resize', handleOrientation);
+                window.addEventListener('orientationchange', handleOrientation);
+            });
+
+            function on_ctl_multiplayer_send_nickname(){
+                var szNickname = jQuery('input[name=nickname]').val();
+                g_oCTLMultiplayer.setNickName(szNickname);
+                s_oNetworkManager.login(szNickname);
+            }           
+
+            function on_ctl_multiplayer_send_password(){
+                var oNodePassword = jQuery( '#'+ g_oCTLMultiplayer._idCurDialog + ' input[name=password]');
+                var szRoomName = oNodePassword.attr("data-room-name");
+                var szPassword = oNodePassword.val();
+                s_oNetworkManager.tryJoinRoomWithPass(szRoomName, szPassword);
+            }  
+
+            function on_ctl_multiplayer_join_room_with_password(){  
+                g_oCTLMultiplayer.closeAllDialog();
+                g_oCTLMultiplayer.showLoading(TEXT_NETWORK_CONNECTING);
+            }
+
+            function on_ctl_multiplayer_show_create_match(){
+                g_oCTLMultiplayer.closeAllDialog();
+                g_oCTLMultiplayer.showCreateRoom();
+            }
+
+            function on_ctl_multiplayer_join_quick_match(){
+                g_oCTLMultiplayer.closeAllDialog();
+                s_oNetworkManager.joinQuickMatch();
+            }
+
+            function on_ctl_multiplayer_close_type_room_password(){
+                g_oCTLMultiplayer.closeAllDialog();
+                s_oNetworkManager.gotoLobby();
+            }
+
+            function on_ctl_multiplayer_close_create_room(){
+                g_oCTLMultiplayer.closeAllDialog();
+                s_oNetworkManager.gotoLobby();
+            }
+
+            function on_ctl_multiplayer_refresh_room_list(){
+                s_oNetworkManager.gotoLobby();
+            }
+
+            function on_ctl_multiplayer_create_room(){
+                var szRoomname  = jQuery('input[name=roomname]').val();
+                var szPassword  = jQuery('input[name=password]').val();
+                var iMaxPlayers = jQuery("input[name='maxplayers']:checked").val();
+                s_oNetworkManager.tryCreateUniqueRoom(szRoomname, szPassword, iMaxPlayers);
+                g_oCTLMultiplayer.showLoading(TEXT_NETWORK_CONNECTING);
+            }
+
+            function on_ctl_multiplayer_join_room(szRoomName){
+                s_oNetworkManager.joinRoom(szRoomName);
+            }
+        </script>
+        <div class="check-fonts">
+            <p class="check-font-1">dwi bakti n dev testing</p>
+        </div> 
+    </body>
+</html>
